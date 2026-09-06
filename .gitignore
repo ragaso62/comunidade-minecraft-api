@@ -1,0 +1,6 @@
+.github/
+database/
+fica/
+target/
+application.properties
+.vscode/
