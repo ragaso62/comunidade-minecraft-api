@@ -4,3 +4,6 @@ fica/
 target/
 application.properties
 .vscode/
+.vs/
+bin/
+obj/
