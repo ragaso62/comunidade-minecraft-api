@@ -79,4 +79,71 @@ public class AnaliseRepository {
             """;
         return jdbc.queryForList(sql, nickname);
     }
+    public List<Map<String, Object>> loginsPorDia() {
+        String sql = """
+                SELECT DATE(entrada) AS dia, COUNT(*) AS total
+                FROM sessoes
+                GROUP BY DATE(entrada)
+                ORDER BY dia
+            """;
+        return jdbc.queryForList(sql);
+    }
+    public List<Map<String, Object>> sessoesPorHora() {
+        String sql = """
+            SELECT DAYOFWEEK(entrada) AS dia_semana,
+                   HOUR(entrada)      AS hora,
+                   COUNT(*)           AS total
+            FROM sessoes
+            GROUP BY DAYOFWEEK(entrada), HOUR(entrada)
+            ORDER BY dia_semana, hora
+            """;
+        return jdbc.queryForList(sql);
+    }
+    public List<Map<String, Object>> violacoesPorHora() {
+        String sql = """
+            SELECT DAYOFWEEK(ocorrido_em) AS dia_semana,
+                   HOUR(ocorrido_em)      AS hora,
+                   COUNT(*)               AS total
+            FROM violacoes
+            GROUP BY DAYOFWEEK(ocorrido_em), HOUR(ocorrido_em)
+            ORDER BY dia_semana, hora
+            """;
+        return jdbc.queryForList(sql);
+    }
+        public List<Map<String, Object>> violacoesVsTempo() {
+        String sql = """
+            SELECT j.nickname_atual AS jogador,
+                   j.plataforma     AS plataforma,
+                   COALESCE(s.minutos, 0) AS minutos_jogados,
+                   COALESCE(v.total, 0)   AS total_violacoes
+            FROM jogadores j
+            LEFT JOIN (
+                SELECT jogador_id,
+                       ROUND(SUM(TIMESTAMPDIFF(SECOND, entrada, saida)) / 60.0, 1) AS minutos
+                FROM sessoes
+                WHERE saida IS NOT NULL
+                GROUP BY jogador_id
+            ) s ON s.jogador_id = j.id
+            LEFT JOIN (
+                SELECT jogador_id, COUNT(*) AS total
+                FROM violacoes
+                GROUP BY jogador_id
+            ) v ON v.jogador_id = j.id
+            ORDER BY total_violacoes DESC
+            """;
+        return jdbc.queryForList(sql);
+    }
+        public List<Map<String, Object>> resumoPorPlataforma() {
+        String sql = """
+            SELECT j.plataforma AS plataforma,
+                   COUNT(*)                   AS contas,
+                   COALESCE(SUM(s.qtd), 0)    AS sessoes,
+                   COALESCE(SUM(v.qtd), 0)    AS violacoes
+            FROM jogadores j
+            LEFT JOIN (SELECT jogador_id, COUNT(*) AS qtd FROM sessoes    GROUP BY jogador_id) s ON s.jogador_id = j.id
+            LEFT JOIN (SELECT jogador_id, COUNT(*) AS qtd FROM violacoes  GROUP BY jogador_id) v ON v.jogador_id = j.id
+            GROUP BY j.plataforma
+            """;
+        return jdbc.queryForList(sql);
+    }
 }

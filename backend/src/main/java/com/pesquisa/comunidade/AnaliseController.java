@@ -46,10 +46,35 @@ public class AnaliseController {
         return repositorio.linhaDoTempoViolacoes(nickname);
     }
 
+    @GetMapping("/login/por-dia")
+    public List<Map<String, Object>> loginsPorDia() {
+        return repositorio.loginsPorDia();
+    }
+
     @GetMapping("/violacoes/por-dia")
-public List<Map<String, Object>> violacoesPorDia() {
+    public List<Map<String, Object>> violacoesPorDia() {
     String sql = "SELECT DATE(ocorrido_em) as dia, COUNT(*) as total " +
                  "FROM violacoes GROUP BY DATE(ocorrido_em) ORDER BY dia";
     return jdbcTemplate.queryForList(sql);
-}
+    }
+    
+    @GetMapping("/sessoes/por-hora")
+    public List<Map<String, Object>> sessoesPorHora() {
+        return repositorio.sessoesPorHora();
+    }
+ 
+    @GetMapping("/violacoes/por-hora")
+    public List<Map<String, Object>> violacoesPorHora() {
+        return repositorio.violacoesPorHora();
+    }
+ 
+    @GetMapping("/jogadores/violacoes-vs-tempo")
+    public List<Map<String, Object>> violacoesVsTempo() {
+        return repositorio.violacoesVsTempo();
+    }
+ 
+    @GetMapping("/jogadores/por-plataforma")
+    public List<Map<String, Object>> resumoPorPlataforma() {
+        return repositorio.resumoPorPlataforma();
+    }
 }
